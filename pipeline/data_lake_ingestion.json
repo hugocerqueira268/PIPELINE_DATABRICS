@@ -13,7 +13,14 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/hugocerqueira268@outlook.com/PIPELINE_DATABRICS/NOTEBOOKS/Inbound_to_bronze"
+				},
+				"linkedServiceName": {
+					"referenceName": "datafactory_data_brics",
+					"type": "LinkedServiceReference"
+				}
 			},
 			{
 				"name": "ingestao-camada-silver",
@@ -33,7 +40,14 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/hugocerqueira268@outlook.com/PIPELINE_DATABRICS/NOTEBOOKS/bronze_to-silver"
+				},
+				"linkedServiceName": {
+					"referenceName": "datafactory_data_brics",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"annotations": []
