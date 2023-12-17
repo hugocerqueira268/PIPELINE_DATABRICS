@@ -1,0 +1,9 @@
+{
+	"name": "DTfactoryDL",
+	"location": "westus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "1fe02979-cb62-49fd-a72e-fd1b558451df",
+		"tenantId": "4234aa58-0453-477d-9504-6366d15a6b29"
+	}
+}
