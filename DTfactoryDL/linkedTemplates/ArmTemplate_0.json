@@ -1,0 +1,135 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "DTfactoryDL"
+		},
+		"datafactory_data_brics_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia segura para \"accessToken\" de \"datafactory_data_brics\""
+		},
+		"datafactory_data_brics_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1217-172750-t8ybe3g9"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/datafactory_data_brics')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-3268265180188367.7.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('datafactory_data_brics_accessToken')]"
+					},
+					"existingClusterId": "[parameters('datafactory_data_brics_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/data_lake_ingestion')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Ingestao-camada-bronze",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/hugocerqueira268@outlook.com/PIPELINE_DATABRICS/NOTEBOOKS/Inbound_to_bronze"
+						},
+						"linkedServiceName": {
+							"referenceName": "datafactory_data_brics",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "ingestao-camada-silver",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Ingestao-camada-bronze",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Repos/hugocerqueira268@outlook.com/PIPELINE_DATABRICS/NOTEBOOKS/bronze_to-silver"
+						},
+						"linkedServiceName": {
+							"referenceName": "datafactory_data_brics",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/datafactory_data_brics')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PIPELINE GATILHO 1 EM 1 HORA')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "data_lake_ingestion",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 5,
+						"startTime": "2023-12-17T21:12:00",
+						"timeZone": "E. South America Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/data_lake_ingestion')]"
+			]
+		}
+	]
+}

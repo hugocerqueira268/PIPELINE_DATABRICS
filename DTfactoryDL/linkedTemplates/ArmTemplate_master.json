@@ -1,0 +1,56 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "DTfactoryDL"
+		},
+		"datafactory_data_brics_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia segura para \"accessToken\" de \"datafactory_data_brics\""
+		},
+		"datafactory_data_brics_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1217-172750-t8ybe3g9"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI para conta de armazenamento contendo os modelos ARM ligados"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Token sas para conta de armazenamento contendo os modelos ARM ligados"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "DTfactoryDL_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"datafactory_data_brics_accessToken": {
+						"value": "[parameters('datafactory_data_brics_accessToken')]"
+					},
+					"datafactory_data_brics_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('datafactory_data_brics_properties_typeProperties_existingClusterId')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
