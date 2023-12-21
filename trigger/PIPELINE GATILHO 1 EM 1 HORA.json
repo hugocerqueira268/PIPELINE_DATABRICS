@@ -2,7 +2,7 @@
 	"name": "PIPELINE GATILHO 1 EM 1 HORA",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipelines": [
 			{
 				"pipelineReference": {
